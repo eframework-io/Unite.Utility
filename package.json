@@ -1,0 +1,69 @@
+{
+  "name": "io.eframework.unite.utility",
+  "displayName": "EFramework Utility for Unite",
+  "description": "面向 Unite 平台的通用基础类库，提供了统一的 API 接口，确保在多平台环境下保持一致的运行结果。",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "EFramework Innovation",
+    "email": "eframework-io@outlook.com",
+    "url": "https://github.com/eframework-io"
+  },
+  "homepage": "https://eframework.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eframework-io/Unite.Utility.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eframework-io/Unite.Utility/issues"
+  },
+  "keywords": [
+    "eframework",
+    "unite",
+    "utility"
+  ],
+  "files": [
+    "dist/",
+    "tests/dist/",
+    "types/",
+    "docs/",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./tests": {
+      "require": "./tests/dist/index.cjs",
+      "import": "./tests/dist/index.mjs",
+      "types": "./tests/dist/index.d.ts"
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "8.4.0",
+    "@types/jest": "27.5.2",
+    "@types/node": "16.11.7",
+    "jest": "27.2.0",
+    "rollup": "2.79.1",
+    "rollup-plugin-sourcemaps": "0.6.3",
+    "rollup-plugin-typescript2": "0.36.0",
+    "rollup-plugin-terser": "7.0.2",
+    "rollup-plugin-dts": "4.2.3",
+    "ts-jest": "27.0.0",
+    "typescript": "4.1.6"
+  },
+  "scripts": {
+    "debug": "rm -rf dist && rm -rf test/dist && rollup -c && npm link",
+    "release": "rm -rf dist && rm -rf test/dist && rollup -c --mode=production",
+    "test": "jest --coverage --runInBand",
+    "prepublishOnly": "npm install && npm run release"
+  }
+}

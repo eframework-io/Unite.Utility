@@ -1,0 +1,85 @@
+name: 单元测试
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_platforms:
+        description: "输入目标平台（可选：windows-latest/ubuntu-latest/macos-latest）"
+        required: false
+        type: string
+        default: '["windows-latest", "ubuntu-latest", "macos-latest"]'
+      node_versions:
+        description: "输入运行环境（参考：https://nodejs.org/download/release/）"
+        required: false
+        type: string
+        default: '["20", "22", "24"]'
+  workflow_call:
+    inputs:
+      target_platforms:
+        description: "输入目标平台（可选：windows-latest/ubuntu-latest/macos-latest）"
+        required: false
+        type: string
+        default: '["windows-latest", "ubuntu-latest", "macos-latest"]'
+      node_versions:
+        description: "输入运行环境（参考：https://nodejs.org/download/release/）"
+        required: false
+        type: string
+        default: '["20", "22", "24"]'
+
+permissions:
+  checks: write
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  test:
+    name: 测试 node${{ matrix.node }}.${{ matrix.os }} 环境
+    runs-on: ${{ matrix.os }}
+    env:
+      TZ: "Asia/Shanghai"
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ${{ fromJson(github.event.inputs.node_versions || inputs.node_versions) }}
+        os: ${{ fromJson(github.event.inputs.target_platforms || inputs.target_platforms) }}
+
+    steps:
+      - name: 检出项目仓库
+        uses: actions/checkout@v5
+
+      - name: 设置测试环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: 安装依赖工具
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install 7zip -y
+          choco install unzip -y
+          choco install zip -yy
+
+      - name: 运行单元测试
+        id: test_result
+        shell: bash
+        run: |
+          echo "🔍 开始测试..."
+          npm install
+          mkdir -p tests/reports
+          if ! npm test > tests/reports/output.log 2>&1; then
+            echo "❌ 测试失败"
+            cat tests/reports/output.log
+            exit 1
+          fi
+          cat tests/reports/output.log
+          echo "✅ 测试通过"
+
+      - name: 上传测试报告
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: test#${{ github.run_number }}.node${{ matrix.node }}.${{ matrix.os }}.reports
+          path: tests/reports
+          retention-days: 14
